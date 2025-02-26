@@ -1,7 +1,7 @@
 import { Card, Button } from "react-bootstrap";
 import { PencilSquare } from "react-bootstrap-icons";
 
-const ProfileCard = ({ name, email, password, onUpdate }) => {
+const ProfileCard = ({ email, password, onUpdate }) => {
   return (
     <Card
       style={{ width: "18rem" }}
@@ -10,7 +10,6 @@ const ProfileCard = ({ name, email, password, onUpdate }) => {
       <Card.Body>
         <Card.Title>Profile</Card.Title>
         <Card.Text>
-          <strong>Name:</strong> {name} <br />
           <strong>Email:</strong> {email} <br />
           <strong>Password:</strong> {"*".repeat(password.length)}
         </Card.Text>

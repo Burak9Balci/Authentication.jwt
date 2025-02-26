@@ -2,13 +2,23 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Form, Button, Container, Card } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom"; // 🔥 `Navigate` eklendi
+import { useSelector, useDispatch } from "react-redux";
+import { loginSuccess } from "../Redux/authSlice";
 import apiService from "../Services/apiService";
-// Login Validation Schema
 
 const LoginForm = () => {
   const api = new apiService();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
+  // Kullanıcı giriş yapmışsa, profile yönlendir
+  if (isAuthenticated) {
+    return <Navigate to="/profile" />;
+  }
+
+  // Giriş formu doğrulama şeması
   const loginSchema = yup.object().shape({
     email: yup
       .string()
@@ -19,15 +29,27 @@ const LoginForm = () => {
       .min(6, "Şifre en az 6 karakter olmalıdır")
       .required("Şifre zorunludur"),
   });
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: yupResolver(loginSchema) });
 
-  const onSubmit = (data) => {
-    console.log("Login Data", data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await api.login(data); // API'ye POST isteği gönder
+
+      if (response.token) {
+        dispatch(loginSuccess({ email: data.email, token: response.token }));
+        alert("Giriş başarılı! Giriş yapabilirsiniz.");
+        navigate("/profile"); // 🔥 `navigate` kullanarak yönlendiriyoruz
+      }
+    } catch (error) {
+      alert("Giriş başarısız! Lütfen geçerli bir kullanıcı ile deneyin.");
+    }
   };
+
   return (
     <Container className="d-flex justify-content-center mt-5">
       <Card style={{ width: "400px" }}>
@@ -70,4 +92,5 @@ const LoginForm = () => {
     </Container>
   );
 };
+
 export default LoginForm;

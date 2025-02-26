@@ -8,7 +8,6 @@ const ProfilePage = () => {
   return (
     <div className="d-flex justify-content-center mt-5">
       <ProfileCard
-        name="Çağrı Yolyapar"
         email="nightWhisper.com"
         password="********"
         onUpdate={handleUpdate}

@@ -2,11 +2,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Form, Button, Container, Card } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import User from "../Entity/user";
 import apiService from "../Services/apiService";
 
 const RegisterForm = () => {
   const api = new apiService();
+  const navigate = useNavigate();
   const registerSchema = yup.object().shape({
     name: yup.string().required("İsim zorunludur"),
     email: yup
@@ -28,8 +30,16 @@ const RegisterForm = () => {
     formState: { errors },
   } = useForm({ resolver: yupResolver(registerSchema) });
 
-  const onSubmit = (data) => {
-    console.log("Register Data", data);
+  const onSubmit = async (data) => {
+    try {
+      const user = new User(data.email, data.password);
+      await api.register(user); // API'ye POST isteği gönder
+      alert("Kayıt başarılı! Giriş yapabilirsiniz.");
+      navigate("/Login");
+    } catch (error) {
+      console.error("Kayıt başarısız:", error);
+      alert("Kayıt sırasında bir hata oluştu.");
+    }
   };
 
   return (
@@ -38,18 +48,6 @@ const RegisterForm = () => {
         <Card.Body>
           <h2 className="text-center">Kayıt Ol</h2>
           <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Group controlId="name">
-              <Form.Label>İsim</Form.Label>
-              <Form.Control
-                type="text"
-                {...register("name")}
-                isInvalid={errors.name}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.name?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
-
             <Form.Group controlId="email" className="mt-3">
               <Form.Label>Email</Form.Label>
               <Form.Control
